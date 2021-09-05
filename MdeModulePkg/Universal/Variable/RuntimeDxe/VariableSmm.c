@@ -688,6 +688,10 @@ SmmVariableHandler (
         //
         InitializeVariableQuota ();
       }
+      //if (mVariableModuleGlobal->CommonVariableTotalSize) {
+      if (mVariableModuleGlobal == NULL) {
+        return EFI_INVALID_PARAMETER;
+      }
       ReclaimForOS ();
       Status = EFI_SUCCESS;
       break;

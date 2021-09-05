@@ -1336,7 +1336,7 @@ FindVariable (
   VARIABLE_STORE_HEADER   *VariableStoreHeader[VariableStoreTypeMax];
   VARIABLE_STORE_TYPE     Type;
 
-  if (VariableName[0] != 0 && VendorGuid == NULL) {
+  if ((VariableName[0] != 0 && VendorGuid == NULL) || Global == NULL) {
     return EFI_INVALID_PARAMETER;
   }
 
@@ -3172,6 +3172,10 @@ VariableServiceSetVariable (
     return EFI_INVALID_PARAMETER;
   }
 
+  if (mVariableModuleGlobal == NULL) {
+    return EFI_INVALID_PARAMETER;
+  }
+
   //
   // Check for reserverd bit in variable attribute.
   // EFI_VARIABLE_AUTHENTICATED_WRITE_ACCESS is deprecated but we still allow
@@ -3457,6 +3461,13 @@ VariableServiceQueryVariableInfoInternal (
     VariableStoreHeader = mNvVariableCache;
   }
 
+  if (VariableStoreHeader == NULL) {// && VariableStoreHeader->Size) {
+    return EFI_INVALID_PARAMETER;
+  }
+//  if (MaximumVariableStorageSize == NULL) {// || VariableStoreHeader->Size) {
+//    return EFI_INVALID_PARAMETER;
+//  }
+
   //
   // Now let's fill *MaximumVariableStorageSize *RemainingVariableStorageSize
   // with the storage size (excluding the storage header size).
@@ -3638,6 +3649,9 @@ VariableServiceQueryVariableInfo (
     //
     return EFI_INVALID_PARAMETER;
   } else if ((Attributes & VARIABLE_ATTRIBUTE_AT_AW) != 0) {
+    if (mVariableModuleGlobal == NULL) {
+      return EFI_INVALID_PARAMETER; 
+    }
     if (!mVariableModuleGlobal->VariableGlobal.AuthSupport) {
       //
       // Not support authenticated variable write.
@@ -3692,6 +3706,12 @@ ReclaimForOS(
   Reclaimed = TRUE;
 
   Status  = EFI_SUCCESS;
+
+  //if (*mVariableModuleGlobal->CommonRuntimeVariableSpace == NULL) {
+  ////  return EFI_INVALID_PARAMETER;
+  //  ASSERT(mVariableModuleGlobal->CommonRuntimeVariableSpace == NULL);
+  //}
+  //ASSERT(&mVariableModuleGlobal->CommonRuntimeVariableSpace == NULL);
 
   if (mVariableModuleGlobal->CommonRuntimeVariableSpace < mVariableModuleGlobal->CommonVariableTotalSize) {
     RemainingCommonRuntimeVariableSpace = 0;
@@ -3993,6 +4013,9 @@ InitEmuNonVolatileVariableStore (
   ASSERT (HwErrStorageSize < (VariableStoreLength - sizeof (VARIABLE_STORE_HEADER)));
 
   mVariableModuleGlobal->CommonVariableSpace = ((UINTN) VariableStoreLength - sizeof (VARIABLE_STORE_HEADER) - HwErrStorageSize);
+  //if (mVariableModuleGlobal->CommonVariableSpace == (UINTN) NULL) {
+  //  return EFI_INVALID_PARAMETER;
+  //}
   mVariableModuleGlobal->CommonMaxUserVariableSpace = mVariableModuleGlobal->CommonVariableSpace;
   mVariableModuleGlobal->CommonRuntimeVariableSpace = mVariableModuleGlobal->CommonVariableSpace;
 
