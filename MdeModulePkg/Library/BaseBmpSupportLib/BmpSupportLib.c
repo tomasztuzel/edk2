@@ -27,6 +27,8 @@
 
 #include <Library/BmpSupportLib.h>
 
+#define IMAGE_MAX 0xf1
+
 //
 // BMP Image header for an uncompressed 24-bit per pixel BMP image.
 //
@@ -377,6 +379,14 @@ TranslateBmpToGopBlt (
         //
         // Translate 8-bit (256 colors) BMP Palette to 24-bit color
         //
+        if (*Image > IMAGE_MAX) {
+          DEBUG ((
+            DEBUG_ERROR,
+            "TranslateBmpToGopBlt: invalid Image needed size... <= 0x%x\n",
+            IMAGE_MAX
+          ));
+          return RETURN_UNSUPPORTED;
+        }
         Blt->Red   = BmpColorMap[*Image].Red;
         Blt->Green = BmpColorMap[*Image].Green;
         Blt->Blue  = BmpColorMap[*Image].Blue;
