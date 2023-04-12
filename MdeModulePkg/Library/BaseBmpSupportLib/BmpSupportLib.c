@@ -233,21 +233,22 @@ TranslateBmpToGopBlt (
     return RETURN_UNSUPPORTED;
   }
 
-  if (BmpHeader->ImageOffset > sizeof (BMP_IMAGE_HEADER)) {
-    switch (BmpHeader->BitPerPixel) {
-    case 1:
-      ColorMapNum = 2;
-      break;
-    case 4:
-      ColorMapNum = 16;
-      break;
-    case 8:
-      ColorMapNum = 256;
-      break;
-    default:
-      ColorMapNum = 0;
-      break;
-    }
+  switch (BmpHeader->BitPerPixel) {
+  case 1:
+    ColorMapNum = 2;
+    break;
+  case 4:
+    ColorMapNum = 16;
+    break;
+  case 8:
+    ColorMapNum = 256;
+    break;
+  default:
+    ColorMapNum = 0;
+    break;
+  }
+
+  if (ColorMapNum) {
     //
     // BMP file may has padding data between the bmp header section and the
     // bmp data section.
